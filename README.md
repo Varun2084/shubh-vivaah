@@ -9,6 +9,8 @@ multi-agent pipeline.
 Built with **React · Vite · FastAPI · Supabase · Pinecone · Tavily · Groq
 LLMs · Gemini embeddings**.
 
+![CI](https://github.com/Varun2084/shubh-vivaah/actions/workflows/ci.yml/badge.svg)
+
 ---
 
 ## ✨ What it does
@@ -85,6 +87,20 @@ npm run dev                   # http://localhost:5173  (proxies /api to :8000)
 ```
 
 Open http://localhost:5173, click **Use sample resume**, and **Analyze**.
+
+### 🐳 Docker (whole stack)
+
+Run both services with one command — no local Python/Node needed:
+
+```bash
+docker compose up --build
+```
+
+- Frontend (nginx): http://localhost:5173 — proxies `/api` to the backend
+- Backend (FastAPI): http://localhost:8000 — docs at `/docs`
+
+API keys are optional; drop them in `backend/.env` (the compose file loads it
+if present) or run keyless in mock mode.
 
 ## 🔌 Configuration
 
