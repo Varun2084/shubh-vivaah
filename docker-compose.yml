@@ -1,0 +1,25 @@
+# Run the full CareerAtlas stack:
+#   docker compose up --build
+# Frontend (nginx) on http://localhost:5173, proxying /api to the backend.
+# Backend (FastAPI) also reachable directly on http://localhost:8000.
+#
+# All API keys are optional — without them the backend runs in mock mode.
+# Provide them via a backend/.env file (see backend/.env.example).
+
+services:
+  backend:
+    build: ./backend
+    env_file:
+      - path: ./backend/.env
+        required: false
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    restart: unless-stopped
