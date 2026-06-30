@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
+import { extractResume } from '../api/client.js'
 
 const SAMPLE = `Priya Sharma
 priya.sharma@example.com
@@ -26,11 +27,33 @@ const ROLES = [
 export default function ResumeForm({ onSubmit, loading }) {
   const [resumeText, setResumeText] = useState('')
   const [targetRole, setTargetRole] = useState(ROLES[0])
+  const [fileInfo, setFileInfo] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+  const fileRef = useRef(null)
 
   const submit = (e) => {
     e.preventDefault()
     if (resumeText.trim().length < 20) return
     onSubmit({ resumeText, targetRole })
+  }
+
+  const onFile = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setUploadError('')
+    setFileInfo('')
+    try {
+      const { text, characters } = await extractResume(file)
+      setResumeText(text)
+      setFileInfo(`Loaded ${file.name} · ${characters.toLocaleString()} chars`)
+    } catch (err) {
+      setUploadError(err.message || 'Could not read that file.')
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
   }
 
   return (
@@ -45,7 +68,7 @@ export default function ResumeForm({ onSubmit, loading }) {
       </label>
 
       <label className="field">
-        <span>Paste your resume</span>
+        <span>Paste your resume — or upload a file</span>
         <textarea
           rows={12}
           value={resumeText}
@@ -54,15 +77,35 @@ export default function ResumeForm({ onSubmit, loading }) {
         />
       </label>
 
+      <input
+        ref={fileRef}
+        type="file"
+        accept=".pdf,.docx,.txt,.md"
+        onChange={onFile}
+        hidden
+      />
+      {fileInfo && <p className="muted">{fileInfo}</p>}
+      {uploadError && <p className="muted upload-error">{uploadError}</p>}
+
       <div className="form-actions">
-        <button
-          type="button"
-          className="btn-ghost"
-          onClick={() => setResumeText(SAMPLE)}
-        >
-          Use sample resume
-        </button>
-        <button type="submit" className="btn" disabled={loading}>
+        <div className="form-actions-left">
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? 'Reading…' : 'Upload file'}
+          </button>
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={() => setResumeText(SAMPLE)}
+          >
+            Use sample resume
+          </button>
+        </div>
+        <button type="submit" className="btn" disabled={loading || uploading}>
           {loading ? 'Analyzing…' : 'Analyze my career'}
         </button>
       </div>

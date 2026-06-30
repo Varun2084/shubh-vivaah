@@ -13,8 +13,8 @@ LLMs · Gemini embeddings**.
 
 ## ✨ What it does
 
-Paste a resume, pick a target role, and CareerAtlas runs a five-stage
-agentic workflow:
+Paste a resume **or upload a PDF / DOCX / TXT file**, pick a target role,
+and CareerAtlas runs a five-stage agentic workflow:
 
 | Stage | Agent | Output |
 |-------|-------|--------|
@@ -115,6 +115,7 @@ The suite exercises the full pipeline in mock mode (no network required).
 
 | Method | Path | Description |
 |--------|------|-------------|
+| `POST` | `/api/extract` | Extract text from an uploaded resume (PDF / DOCX / TXT / MD) |
 | `POST` | `/api/analyze` | Run the full pipeline, return the result |
 | `POST` | `/api/analyze/stream` | Same, streamed as SSE progress events |
 | `GET`  | `/api/history` | Recent analysis runs |

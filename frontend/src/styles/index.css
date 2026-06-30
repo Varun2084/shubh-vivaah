@@ -119,7 +119,15 @@ select:focus {
 .form-actions {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
+}
+.form-actions-left {
+  display: flex;
+  gap: 8px;
+}
+.upload-error {
+  color: var(--danger);
 }
 .btn,
 .btn-ghost {

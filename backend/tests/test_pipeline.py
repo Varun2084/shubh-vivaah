@@ -67,6 +67,25 @@ def test_gap_analysis_identifies_missing_backend_skills():
     assert "fastapi" in missing or "python" in missing
 
 
+def test_extract_txt_upload():
+    resp = client.post(
+        "/api/extract",
+        files={"file": ("resume.txt", SAMPLE_RESUME.encode(), "text/plain")},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "Priya" in data["text"]
+    assert data["characters"] > 20
+
+
+def test_extract_rejects_unsupported_type():
+    resp = client.post(
+        "/api/extract",
+        files={"file": ("resume.exe", b"x" * 50, "application/octet-stream")},
+    )
+    assert resp.status_code == 422
+
+
 def test_validation_rejects_short_input():
     resp = client.post(
         "/api/analyze", json={"resume_text": "too short", "target_role": "x"}

@@ -8,6 +8,18 @@ export async function getStatus() {
   return res.json()
 }
 
+// Uploads a resume file and returns its extracted plain text.
+export async function extractResume(file) {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await fetch(`${BASE}/api/extract`, { method: 'POST', body: form })
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}))
+    throw new Error(detail.detail || 'Could not read that file.')
+  }
+  return res.json()
+}
+
 export async function analyze({ resumeText, targetRole }) {
   const res = await fetch(`${BASE}/api/analyze`, {
     method: 'POST',

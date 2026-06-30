@@ -3,14 +3,26 @@ from __future__ import annotations
 
 import json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 
 from app.agents.orchestrator import get_orchestrator
 from app.models.schemas import AnalyzeRequest, AnalyzeResponse, PipelineEvent
 from app.services.database import get_database
+from app.services.extract import ExtractionError, extract_text
 
 router = APIRouter(prefix="/api", tags=["career"])
+
+
+@router.post("/extract")
+async def extract(file: UploadFile = File(...)) -> dict:
+    """Extract plain text from an uploaded resume (PDF / DOCX / TXT / MD)."""
+    data = await file.read()
+    try:
+        text = extract_text(file.filename or "", data)
+    except ExtractionError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"filename": file.filename, "text": text, "characters": len(text)}
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
